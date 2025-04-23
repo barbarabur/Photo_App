@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Photo;
 use App\Models\User;
+use App\Traits\LogsUserActivity;
 
 
 use Illuminate\Support\Facades\Auth;
@@ -13,13 +14,15 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
+    use LogsUserActivity;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $order = Order::all();
-        return view('chart.index', compact('chart'));
+        $orders = Order::all();
+        return view('order.index', compact('orders'));
     }
 
     /**
@@ -34,27 +37,44 @@ class OrderController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {   
-        return redirect()->route('photos.show', $request->commentable_id)->with('success', 'Comentario agregado con éxito.');
+    {
+        $request->validate([
+            'photo_ids' => 'required|array',
+            'photo_ids.*' => 'exists:photos,id'
+        ]);
+
+        $total = Photo::whereIn('id', $request->photo_ids)->sum('price');
+
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'total_price' => $total,
+            'status' => 'pending'
+        ]);
+
+        $order->photos()->attach($request->photo_ids);
+
+        return redirect()->route('orders.index')->with('success', 'Order created.');
     }
+
 
     /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        $user = Auth::user();
+        $order = Order::with('photos', 'user')->findOrFail($id);
 
-
-        $order =Order::find($id)->with('photos')->get();
+        return view('orders.show', compact('order'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Order $order)
     {
-        //
+        $photos = Photo::all();
+        return view('orders.edit', compact('order', 'photos'));        
+
     }
 
     /**
@@ -68,10 +88,12 @@ class OrderController extends Controller
     /**´
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Order $order)
     {
-        //
-    }
+        $order->photos()->detach();
+        $order->delete();
+
+        return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');    }
 
     public function addToOrder (Request $request, $photoId) {
         $user = Auth::user();
@@ -89,6 +111,7 @@ class OrderController extends Controller
             $order ->total_price+= $photo->price;
             $order->save();
         }
+        $this->logActivity('Foto añadida al carrito', ['photo_id' => $photoId]);
 
         return redirect()->back()->with('success', 'Foto añadida a la orden.');
 
@@ -98,16 +121,22 @@ class OrderController extends Controller
     {
         $user = Auth::user();
 
+        $order = Order::where('user_id', $user->id)
+        ->where('status', 'pending')
+        ->with('photos')
+        ->first();
 
-        $order =Order::find() ->with('photos')->first();
-
-        foreach ($order->photos as $photo) {
-            // Acceder a los datos de la tabla pivote
-            $quantity = $photo->pivot->quantity; // Ejemplo de acceso al valor quantity
-            $status = $photo->pivot->status; // Ejemplo de acceso al valor status
+        if ($order) {
+            $photos = $order->photos;
+            $total = $order->total_price;
+        } else {
+            $photos = collect(); // colección vacía
+            $total = 0;
         }
-    
-        return view('clients.chart', compact('order'));
+//dd($photos);
+
+        return view('clients.chart', compact('photos', 'total'));
 
     }
-}
+
+}  

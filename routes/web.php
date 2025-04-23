@@ -4,7 +4,6 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PhotoController;
-use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\OrderController;
 
@@ -23,14 +22,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/layouts/header', function () {
+/* Route::get('/layouts/header', function () {
     return view('layouts.header');
-})->name('layouts.header');
-
-
-Route::get('/photos/create', function () {
-    return view('photos.create');
-})->name('photos.create');
+})->name('layouts.header'); */
 
 Route::get('/layouts/stats', function () {
     return view('layouts.stats');
@@ -40,25 +34,16 @@ Route::resource('photos', PhotoController::class);
 
 Route::resource('comments', CommentController::class);
 
-Route::get('/comments.create', function () {
-    return view('comments.create');
-})->name('comments.create');
-
 Route::get('/photo/{id}/comments', [CommentController::class, 'show'])->name('photo.comments');
 Route::get('/user/{id}/comments', [CommentController::class, 'showUserComments'])->name('user.comments');
 
-Route::get('/photos/{photo}/photoCard', 
-[PhotoController::class, 'show'])->name('photos.photoCard');
+Route::get('/clients/mainClient',[PhotoController::class, 'index'])->name('clients.mainClient');
 
-Route::get('/clients/mainClient',[ClientController::class, 'photosParaMain'])->name('clients.mainClient');
+Route::get('/clients/likes', [PhotoController::class, 'photosConLike'])->name('clients.likes');
 
-Route::get('/clients/likes', [ClientController::class, 'photosConLike'])->name('clients.likes');
+Route::post('/clients/{photo}/likes', [PhotoController::class, 'like'])->name ('clients.like');
 
-Route::post('/clients/{photo}/likes', [ClientController::class, 'like'])->name ('clients.like');
-
-Route::get('/clients/chart', function(){
-    return view('clients.chart');
-})->name('clients.chart');
+Route::get('/chart', [OrderController::class, 'photosInOrder'])->name('orders.photo');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -74,10 +59,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('/users', UserController::class);
     
     // Ruta para el cliente (Client)
-    Route::get('/mainClient', [ClientController::class, 'index'])->name('clients.mainClient');
+    Route::get('/mainClient', [PhotoController::class, 'index'])->name('clients.mainClient');
     
     // Ruta para el fotógrafo (Photographer)
-    Route::get('/mainPhotos', [PhotoController::class, 'mainPhoto'])->name('photos.mainPhoto')->middleware('auth');
+    Route::get('/mainPhotos', [PhotoController::class, 'index'])->name('photos.mainPhoto')->middleware('auth');
 });
 
 // Incluyendo las rutas de autenticación

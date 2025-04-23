@@ -19,7 +19,7 @@ class Photo extends Model
     ];
 
     //relacion user upload photo 1:N
-    public function userUploads() 
+    public function user() 
     {
         return $this->belongsTo(User::class, 'user_id');
     }

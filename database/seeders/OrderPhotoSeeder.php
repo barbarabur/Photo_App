@@ -37,6 +37,5 @@ class OrderPhotoSeeder extends Seeder
         $order->update(['total_price' => $totalPrice]);
     }
 
-    
     }
 }

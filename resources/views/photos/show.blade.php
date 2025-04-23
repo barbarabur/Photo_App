@@ -10,9 +10,19 @@
           <div>
             <h5 class="card-title">{{ $photo->title }}</h5>
             <h6 class="card-subtitle mb-2 text-muted">
-                  Uploaded: {{ $photo->created_at->format('d/m/Y') }} by Author:<a href = #> {{$name = auth()->user()->name}}</a>
-            </h6>
+                  Uploaded: {{ $photo->created_at->format('d/m/Y') }} </h6>
           </div>
+          <!-- Obtener el usuario (autor de la foto) y mostrar el nombre -->
+          @php
+
+                    $user = $photo->user;  // Obtener el usuario (autor) relacionado con la foto
+                @endphp
+                
+                <p class="card-text">
+                    <small class="text-muted">
+                        Author: {{  $user->name}}
+                    </small>
+                </p>
               @if (auth()->check() && auth()->user()->role === 'Photographer')
                 <div class="d-flex flex-column align-items-end">
                   <a href="{{ route('photos.edit', $photo->id) }}" class="btn btn-outline-dark mb-2">Edit</a>
@@ -37,6 +47,8 @@
         
         <!-- comentarios -->
         <div class="card-body">
+        <h5 class="card-title"><strong>Comments:</strong></h5>
+
         @include('comments.create') 
         </div> 
 
@@ -51,6 +63,7 @@
          
           
           @if ($user->role === 'Client')
+
           <!-- Opción para agregar a la orden -->
           @php
               $order = \App\Models\Order::where('user_id', $user->id)

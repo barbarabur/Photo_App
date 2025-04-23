@@ -15,99 +15,102 @@ php artisan make:controller UserController -r
 Route::resource('photos', PhotoController::class);
 
 
-public function index(){} //listado de los elementos de ese modelo
-/**
-     * Muestra la lista de eventos.
-     */
-    public function index()
-    {
-        $events = Event::with('zone')->get();
-        return view('events.index', compact('events'));
-    }
-    public function index()
-    {
-        return response()->json(Adventure::all(), 200);
-    }
-
-
-public function create(){} // muestra el formulario para dar de alta nuevos elementos del modelo
-public function store(){} //almacena en la base de datos el elemento creado con el formulario de create
-public function store(Request $request)
+ 
+public function index()//listado de los elementos de ese modelo
 {
+    $user = User::find(auth()->id());
+
+    if ($user && $user->hasRole('Photographer')) {
+            // Mostrar fotos del fotógrafo
+            $photos = $user->photos()->with('user')->get(); 
+            // Mostrar fotos del cliente 
+            $photos = Photo::with('user')->get(); 
+                }        
+    return view('photos.index', compact('photos'));
+}
+
+
+public function create()// muestra el formulario para dar de alta nuevos elementos del modelo 
+{
+    $tags = Tag::all(); // Obtener todos los tags
+    return view('photos.create', compact('tags')); // Pasar los tags a la vista. En esta vista se hace el formulario
+} 
+
+public function store(Request $request) //almacena en la base de datos el elemento creado con el formulario de create
+    {
+        $request->validate([
+            'photo_ids' => 'required|array',
+            'photo_ids.*' => 'exists:photos,id'
+        ]);
+
+        $total = Photo::whereIn('id', $request->photo_ids)->sum('price');
+
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'total_price' => $total,
+            'status' => 'pending'
+        ]);
+
+        $order->photos()->attach($request->photo_ids);
+
+        return redirect()->route('orders.index')->with('success', 'Order created.');
+    }
+
+public function show(){} //muestra los datos de un modelo específico, habitualmente por su identificador
+public function show($id)
+{
+    $photo = Photo::findOrFail($id); // Buscar la foto por su ID
+    $comments = $photo->comments()->with('user')->latest()->get();
+
+    return view('photos.show', compact('photo', 'comments')); // Devuelve photo y comments para que las podamos usar como variables en la vista
+}
+
+
+
+public function edit($id)//muestra el formulario para editar un elemento existente del modelo. No para apis, en apis se utiliza update
+{
+    {
+        $photo = Photo::findOrFail($id);       
+        $tags = Tag::all(); // Obtener todos los tags
+     
+        return view('photos.edit', compact('photo', 'tags')); // Vista para editar la foto
+    }
+ 
+}
+
+
+public function update(){} //actualiza en la base de datos el elemento editado con el formulario de edit. En APIS
+public function update(Request $request, string $id)
+{
+    $photo = Photo::findOrFail($id);
+
+    // Validación de los campos
     $request->validate([
-        'name' => 'required|string|max:255',
-        'image' => 'nullable|string',
+        'title' => 'required|string|max:255',
         'description' => 'nullable|string',
+        'price' => 'required|numeric',
     ]);
 
-    $adventure = Adventure::create($request->all());
+    // Actualizar solo los campos de texto (sin cambiar la imagen)
+    $photo->update([
+        'title' => $request->input('title'),
+        'description' => $request->input('description'),
+        'price' => $request->input('price'),
+    ]);
 
-    return response()->json($adventure, 201);
-}
-public function show(){} //muestra los datos de un modelo específico, habitualmente por su identificador
- /**
-     * Muestra un evento en detalle.
-     */
-    public function show($id)
-    {
-        $event = Event::with('zone')->findOrFail($id);
-        return view('events.show', compact('event'));
-    }
+    return redirect()->route('photos.show', $photo->id)->with('success', 'Foto actualizada correctamente');
+ }
 
 
 
-public function edit(){} //muestra el formulario para editar un elemento existente del modelo. No para apis, en apis se utiliza update
-public function edit($id)
-{
-    $adventure = Adventure::find($id);
-
-    if (!$adventure) {
-        return response()->json(['error' => 'Aventura no encontrada'], 404);
-    }
-
-    return response()->json($adventure, 200);
+    public function destroy (){//elimina un elemento por su identificador
+    $photo->delete();
+    return redirect()->route('photos.index')->with('success', 'Foto eliminada.');
 }
 
-
-public function update(){} //actualiza en la base de datos el elementyo editado con el formulario de edit
- /**
-     * Actualiza una aventura existente.
-     */
-    public function update(Request $request, $id)
-    {
-        $adventure = Adventure::find($id);
-
-        if (!$adventure) {
-            return response()->json(['error' => 'Aventura no encontrada'], 404);
-        }
-
-        $adventure->update($request->all());
-
-        return response()->json($adventure, 200);
-    }
-
-
-
-    public function destroy (){} //elimina un elemento por su identificador
- /**
-     * Elimina una aventura.
-     */
-    public function destroy($id)
-    {
-        $adventure = Adventure::find($id);
-
-        if (!$adventure) {
-            return response()->json(['error' => 'Aventura no encontrada'], 404);
-        }
-
-        $adventure->delete();
-
-        return response()->json(['message' => 'Aventura eliminada correctamente'], 200);
-    }
 
 
 /**definir la ruta del controlador en  routes/api.php */
 
 use App\Http\Controllers\AdventureController;
 
-Route::apiResource('adventures', AdventureController::class);

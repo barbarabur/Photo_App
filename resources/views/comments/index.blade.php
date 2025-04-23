@@ -10,10 +10,10 @@
                         <h6 class="card-subtitle mb-2 text-muted">
                             @if ($comment->commentable_type == 'App\Models\Photo')
                                 {{-- Mostrar el nombre del usuario que hizo el comentario en una foto --}}
-                                {{ $comment->user->name }} (Photo)
+                                {{ $comment->user->name }} 
                             @elseif ($comment->commentable_type == 'App\Models\User')
                                 {{-- Mostrar el nombre del usuario que hizo el comentario en un perfil --}}
-                                {{ $comment->user->name }} (User)
+                                {{ $comment->user->name }} 
                             @endif
                         </h6>
                         <p class="card-text">{{ $comment->content }}</p>

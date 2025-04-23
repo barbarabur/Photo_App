@@ -13,6 +13,14 @@
     <p>No estás autenticado. Inicia sesión para realizar acciones.</p>
 @endif
 
+PARA BORRAR LA CACHÉ DE LAS VISTAS: 
+php artisan route:clear
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+
+PARA COMPROBAR LA LISTA DE VISTAS: 
+php artisan route:list
 
 
 
@@ -34,74 +42,115 @@ para crear las vistas:
 -> touch resources/views/header.blade.php
 -> touch resources/views/footer.blade.php
 
-código vistas:
-// resources/views/header.blade.php
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Web</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <header class="bg-primary text-white text-center py-3">
-        <h1>Enterprise Web</h1>
-    </header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Inicio</a>
-            <a class="navbar-brand" href="/productos">Productos</a>
-            <a class="navbar-brand" href="/producto">Producto</a>
-        </div>
-    </nav>
-</body>
-</html>
+código vista:
+// resources/views/photos/show.blade.php
 
-// resources/views/footer.blade.php
-<footer class="bg-dark text-white text-center py-3 mt-4">
-    <p>&copy; 2025 Enterprise Web. Todos los derechos reservados.</p>
-</footer>
+@extends ('layouts.app')
 
-// resources/views/welcome.blade.php
-@include('header')
+@section ('content')
+
 <div class="container mt-4">
-    <h2 class="text-center">Bienvenido a la página principal</h2>
-    <p class="text-center">Esta es la página de inicio de nuestro sitio web.</p>
-</div>
-@include('footer')
+    <div class="card">
+    <div class="card-body">
+        <!-- Encabezado: Título + botón Edit -->
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="card-title">{{ $photo->title }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+                  Uploaded: {{ $photo->created_at->format('d/m/Y') }} </h6>
+          </div>
+          <!-- Obtener el usuario (autor de la foto) y mostrar el nombre -->
+          @php
 
+                    $user = $photo->user;  // Obtener el usuario (autor) relacionado con la foto
+                @endphp
+                
+                <p class="card-text">
+                    <small class="text-muted">
+                        Author: {{  $user->name}}
+                    </small>
+                </p>
+              @if (auth()->check() && auth()->user()->role === 'Photographer')
+                <div class="d-flex flex-column align-items-end">
+                  <a href="{{ route('photos.edit', $photo->id) }}" class="btn btn-outline-dark mb-2">Edit</a>
+                  <form action="{{ route('photos.destroy', $photo->id) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-outline-danger mb-3">Delete</button>
+                  </form>
+                </div>
+              @endif
+          </div>
+          @if (auth()->check() && auth()->user()->role === 'Client')
+          <h6 class="card-subtitle mb-2 text-muted">
+                  
+            </h6>
+            @endif
+          <p class="card-text">{{ $photo->description }}</p>
+          <p class="card-text"><strong>Price:</strong> {{ $photo->price }} €</p>
 
-se crean las rutas:
+          <img src="{{ asset($photo->url) }}" alt="{{ $photo->title }}" class="img-fluid mb-3">
 
-Route::get('/', function () { return view('welcome'); }); Route::get('/productos', [ProductoController::class, 'index']); Route::get('/producto', [ProductoController::class, 'show']);
-
-Controlador:
-app/Http/Controllers/ProductoController.php:
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-
-class ProductoController extends Controller
-{
-    public function index()
-    {
-        $productos = [
-            ['id' => 1, 'nombre' => 'Laptop', 'precio' => 1200],
-            ['id' => 2, 'nombre' => 'Teléfono', 'precio' => 800],
-            ['id' => 3, 'nombre' => 'Tablet', 'precio' => 500]
-        ];
         
-        return view('productos', compact('productos'));
-    }
+        <!-- comentarios -->
+        <div class="card-body">
+        <h5 class="card-title"><strong>Comments:</strong></h5>
 
-    public function show()
-    {
-        $producto = ['id' => 1, 'nombre' => 'Laptop', 'precio' => 1200, 'descripcion' => 'Laptop de última generación'];
+        @include('comments.create') 
+        </div> 
 
-        return view('producto', compact('producto'));
-    }
-}
+        <!--mostrar botones en funcion del usuario-->
+        
+        @if (auth()->check())
+          @php
+              $user = auth()->user(); // Obtener el usuario autenticado
+          @endphp
 
+        <div class="container">
+         
+          
+          @if ($user->role === 'Client')
 
+          <!-- Opción para agregar a la orden -->
+          @php
+              $order = \App\Models\Order::where('user_id', $user->id)
+                          ->where('status', 'pending')
+                          ->with('photos')
+                          ->first();
+
+              $photoInOrder = $order && $order->photos->contains('id', $photo->id);
+          @endphp
+
+                    
+          <form action="{{ route('order.add', $photo->id) }}" method="POST">
+              @csrf
+              <button type="submit"
+            class="btn {{ $photoInOrder ? 'btn-secondary' : 'btn-primary' }} mb-3"
+            {{ $photoInOrder ? 'disabled' : '' }}>
+        {{ $photoInOrder ? '✔ Already in order' : '➕ Add to order' }}
+    </button>
+          </form>
+
+            <!--Opción para dar like -->
+            @php
+                $hasLiked = $photo->likes->contains('user_id', auth()->id());
+            @endphp
+              <form action="{{ route('clients.like', $photo->id) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn {{ $hasLiked ? 'btn-danger' : 'btn-outline-danger' }}">
+                    @if ($hasLiked)
+                      ❤️  Liked
+                    @else
+                      🤍  Like
+                    @endif
+                </button>
+            </form>
+            @endif
+        </div>  
+        @endif  
+    </div>
+  </div>
+  
+</div>
+@endsection
 

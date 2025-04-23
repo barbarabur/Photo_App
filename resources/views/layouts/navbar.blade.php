@@ -14,7 +14,7 @@
         <a class="nav-link" href="{{ route('clients.likes') }}">FAVORITES</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{ route('clients.chart') }}">CHART</a>
+        <a class="nav-link" href="{{ route('orders.photo') }}">CHART</a>
       </li>
     @endif
 

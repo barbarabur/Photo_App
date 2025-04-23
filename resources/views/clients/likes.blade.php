@@ -14,7 +14,7 @@
             @foreach ($photos as $photo)
                 <div class = "col">
                     <div class = "card h-100 shadow-sm">
-                        <a href="{{ route('photos.photoCard', $photo->id) }}">
+                        <a href="{{ route('photos.show', $photo->id) }}">
                             <img src="{{ asset($photo->url) }}" alt="{{ $photo->title }}" class="img-fluid mb-3">
                         </a>
                     <div class="card-body">

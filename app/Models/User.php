@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
@@ -50,24 +51,14 @@ class User extends Authenticatable
     ];
  
     
-//funciones para acceder al tipo de rol
-  /*   public function isAdmin(): bool
+    //función para acceder al tipo de rol
+        public function hasRole($role)
     {
-        return $this->role === 'Admin';
+        return $this->role === '$role';
     }
 
-    public function isPhotographer(): bool
-    {
-        return $this->role === 'Photographer';
-    }
-
-    public function isClient(): bool
-    {
-        return $this->role === 'Client';
-    } */
-
-
-//relacion User 1:1 profile_pic
+    
+    //relacion User 1:1 profile_pic
     public function profile_pic()
     {
         return $this->hasOne(Profile_pic::class);
@@ -81,7 +72,7 @@ class User extends Authenticatable
     }
 
     //relacion user uploads 1:N photos
-    public function uploadPhoto ()
+    public function photos ()
     {
     return $this ->hasMany(Photo::class, 'user_id');
     }
