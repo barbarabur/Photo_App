@@ -1,6 +1,16 @@
-@extends ('layouts.app')
+En rutas tenemos qeu tener definidas las vistas de los formularios
+<?php
+Route::get('/photo/create', [PhotoController::class, 'create'])->name('photo.create');
+Route::post('/photo', [PhotoController::class, 'store'])->name('photo.store');
+?>
+GET muestra
+POST recibe datos
 
-@section('content')
+En el controlador en la function store se procesan los datos recibidos del formulario.
+
+Ejemplo:
+
+
 <div class='container'>
     <h2>Upload Photo</h2>
 
@@ -70,4 +80,9 @@
     </form>
 
 </div>
-@endsection
+
+-------------------------------------------------------------------------------------
+USAR FORM REQUEST
+php artisan make:request StorePhotoRequest
+
+

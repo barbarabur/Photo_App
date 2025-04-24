@@ -54,7 +54,7 @@ class User extends Authenticatable
     //función para acceder al tipo de rol
         public function hasRole($role)
     {
-        return $this->role === '$role';
+        return $this->role === $role;
     }
 
     

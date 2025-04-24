@@ -36,7 +36,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-----> ojo con esto use App\Models\nombreModelo;            !!!!!!!
+use App\Models\nombreModelo;          <-------------- OJO
 
 class nombreModeloSeeder extends Seeder
 {
