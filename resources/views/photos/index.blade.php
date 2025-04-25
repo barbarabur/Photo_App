@@ -35,7 +35,8 @@
     @elseif(auth()->user()->role === 'Photographer')
         @php
             $name = auth()->user()->name;
-            $photos = auth()->user()->uploadPhoto;  // Obtener las fotos asociadas al usuario
+            $photos = auth()->user()->photos()->orderBy('created_at', 'desc')->get();
+             // Obtener las fotos asociadas al usuario ordenadas en orden descendente
 
         @endphp
 

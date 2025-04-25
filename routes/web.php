@@ -22,15 +22,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-/* Route::get('/layouts/header', function () {
-    return view('layouts.header');
-})->name('layouts.header'); */
+Route::get('/layouts/stats', [PhotoController::class, 'stats'])->name('layouts.stats');
 
-Route::get('/layouts/stats', function () {
-    return view('layouts.stats');
-})->name('layouts.stats');
-
-Route::resource('photos', PhotoController::class);
 
 Route::resource('comments', CommentController::class);
 
@@ -44,6 +37,8 @@ Route::get('/clients/likes', [PhotoController::class, 'photosConLike'])->name('c
 Route::post('/clients/{photo}/likes', [PhotoController::class, 'like'])->name ('clients.like');
 
 Route::get('/chart', [OrderController::class, 'photosInOrder'])->name('orders.photo');
+
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -62,8 +57,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/mainClient', [PhotoController::class, 'index'])->name('clients.mainClient');
     
     // Ruta para el fotógrafo (Photographer)
-    Route::get('/mainPhotos', [PhotoController::class, 'index'])->name('photos.mainPhoto')->middleware('auth');
+    Route::get('/mainPhotos', [PhotoController::class, 'index'])->name('photos.mainPhoto');
+    
+    Route::get('/photos/sales', [PhotoController::class, 'completedOrderPhotos'])->name('photos.sales');
+    
 });
+Route::resource('photos', PhotoController::class);
 
 // Incluyendo las rutas de autenticación
 require __DIR__.'/auth.php';

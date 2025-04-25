@@ -1,0 +1,15 @@
+.square-img-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;  /* Esto asegura que el contenedor tenga una relación 1:1 (cuadrada) */
+    overflow: hidden;      /* Oculta cualquier parte de la imagen que se desborde */
+}
+
+.square-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* Recorta la imagen para que llene el contenedor de manera cuadrada */
+}

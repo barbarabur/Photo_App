@@ -133,10 +133,9 @@ class OrderController extends Controller
             $photos = collect(); // colección vacía
             $total = 0;
         }
-//dd($photos);
-
         return view('clients.chart', compact('photos', 'total'));
-
     }
+
+    
 
 }  

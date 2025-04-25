@@ -6,10 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Photo;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\Order;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Requests\PhotoRequest;
 class PhotoController extends Controller
 {
     /**
@@ -39,16 +40,17 @@ class PhotoController extends Controller
      }
 
    
-    public function store(Request $request)
+    public function store(PhotoRequest $request)
     {
-        $request->validate([
+       /* como hacemos la validación desde ell photoRequest quitamos esta parte  
+       $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'tags' => 'array', // Asegurar que los tags sean un array
             'tags.*' => 'exists:tags,id',
-        ]);
+        ]); */
  
  
         //Guardar imagen en storage/public/photos
@@ -80,8 +82,9 @@ class PhotoController extends Controller
    {
        $photo = Photo::findOrFail($id); // Buscar la foto por su ID
        $comments = $photo->comments()->with('user')->latest()->get();
+       $tags = $photo->tags; // Obtener los tags relacionados
 
-       return view('photos.show', compact('photo', 'comments'));
+       return view('photos.show', compact('photo', 'comments', 'tags'));
    }
 
 
@@ -151,5 +154,51 @@ class PhotoController extends Controller
     return back();
     }
 
+    //para aplicar el middleware de contar vistas solo en la vista show
+    public function __construct()
+    {
+        $this->middleware('count.views')->only('show');
+    }
+    
+    //para mostrar las fotos con más likes
 
+    public function stats()
+    {
+        $user = Auth::user();
+        $topLikedPhotos = Photo::withCount('likes')
+            ->where('user_id', $user->id)
+            ->orderBy('likes_count', 'desc')
+            ->take(10)
+            ->get();
+        
+        return view('layouts.stats', compact('topLikedPhotos'));
+    }
+
+    //para mostrar las fotos vendidas de un user
+
+    public function completedOrderPhotos()
+    {    //dd('Llegamos a completedOrderPhotos');
+
+        // Obtener el usuario autenticado
+        $user = auth()->user();
+
+        // Obtener todas las fotos del usuario autenticado
+        $photos = $user->photos;
+
+        $completedOrders = Order::where('status', 'completed')
+            ->whereHas('photos', function ($query) use ($photos) {
+                // Filtrar las órdenes que contienen fotos del usuario
+                $query->whereIn('photos.id', $photos->pluck('id'));  // Filtrar por las fotos del usuario autenticado
+            })
+            ->with('photos')  // Cargar las fotos relacionadas
+            ->get();
+        // Obtener todas las fotos de esas órdenes
+        $completedPhotos = $completedOrders->flatMap(function ($order) {
+            return $order->photos;
+            });
+        
+        // Pasar las fotos completadas a la vista
+        return view('photos.sales', compact('completedPhotos'));
+
+    }
 }

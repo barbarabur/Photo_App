@@ -23,7 +23,7 @@
             <input type="number" class="form-control" name="price" id="price" value="{{ old('price', $photo->price) }}" required>
         </div>
 
-        <div> 
+        <div class="mb-3">
             <label for="tags">Tags</label>
 
             <select name="tags[]" id="tags" class="form-select" multiple required>
@@ -34,8 +34,9 @@
             </select>
          </div>
 
-
+         <div class="mb-3">
         <button type="submit" class="btn btn-primary">Update</button>
+         </div>
     </form>
 </div>
 @endsection

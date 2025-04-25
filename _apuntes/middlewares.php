@@ -1,55 +1,33 @@
-<?php
-php artisan make:middleware NombredelMiddleware
 
-app/http/middleware
+php artisan make:middleware NombredelMiddleware    ------> app/http/middleware
 
-modificar el archivo
 
 //registrar el middleware en Kernel.php
 
 array Middleware - Se ejecuta en cada petición o ruta
 
-Middleware groups - Array donde se pueden añadir varios middleware. Se ejecutan todos los mw que contrine el grupo cada vez que se llama a una de las rutas del grupo.
+Middleware groups - Array donde se pueden añadir varios middleware. Se ejecutan todos los mw que contiene el grupo cada vez que se llama a una de las rutas del grupo.
 
-middleware Aliases- Se ldde da un alias unico para llamrlo
-
-
-Proteger solo para usuarios autenticados routes/web.php
-
-Route::Middleware([‘auth’)]->group (function() {
-	Route::post(‘/logout’, [AuthController::class, ‘logout’]”->name(‘logout’);
-});
-
-Vista Blade
-<form action = ‘{{route(‘logout’)}}’ method = ‘Post’>
-@csrf
-<button type= ‘submit’>Cerrar Sesion</button>
-</form>
-
-namespace App\Http\Middleware;
-use Illuminate\Support\Facades\Auth;
+middleware Aliases- Se le de da un alias unico para llamarlo
 
 
-use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+// ponerlo en la ruta:
 
+        Route::get('/photos/{photo}', [PhotoController::class, 'show'])
+         ->middleware(['count.views']);
 
-class CheckActiveAdventureMiddleware
-{
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next)
-    {
-        $user = Auth::user();
+// si es una ruta que sale de resource en vez de get se pone en el controlador directamente:
 
-        if (!$user || $user->activeAdventure) {
-            return redirect()->route('adventure.show')->with('error', 'Aventura no encontrada.');
+        public function __construct()
+        {
+            $this->middleware('count.views')->only('show');
         }
 
-        return $next($request);
-    }
-}
+ //opcion 2 en routes web:
+
+// Ruta individual para 'show' con middleware
+Route::get('/photos/{photo}', [PhotoController::class, 'show'])
+    ->middleware('count.views')->name('photos.show');
+
+// Y luego las demás rutas (sin duplicar 'show')
+Route::resource('photos', PhotoController::class)->except(['show']);

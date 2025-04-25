@@ -15,7 +15,8 @@ class Photo extends Model
         'description',
         'url',
         'price',
-        'user_id'
+        'user_id',
+        'views',
     ];
 
     //relacion user upload photo 1:N

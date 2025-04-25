@@ -26,6 +26,11 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{{ route('layouts.stats') }}">STATS</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ route('photos.sales') }}">SALES</a>
+      </li>
+      
     @endif
  
     @endif

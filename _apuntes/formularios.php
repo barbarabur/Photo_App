@@ -30,50 +30,39 @@ Ejemplo:
 
         <div class="mb-3">
             <label for="image" class="form-label">Select File</label>
-            <input type="file" class="form-control @error('image') is-invalid @enderror" name="image" id="image" accept="image/*">
-            @error('image')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+            <input type="file" class="form-control" name="image" id="image" accept="image/*">
+           
         </div>
 
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
-            <input type="text" class="form-control @error('title') is-invalid @enderror" name="title" id="title" value="{{ old('title') }}">
-            @error('title')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+            <input type="text" class="form-control " name="title" id="title" value="{{ old('title') }}">
+           
         </div>
 
         <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <textarea class="form-control @error('description') is-invalid @enderror" name="description" id="description" rows="3">{{ old('description') }}</textarea>
-            @error('description')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror        
+            <textarea class="form-control " name="description" id="description" rows="3">{{ old('description') }}</textarea>
+                   
         </div>
 
         <div class="mb-3">
             <label for="price" class="form-label">Price</label>
-            <input type="number" class="form-control @error('price') is-invalid @enderror" name="price" id="price" step="0.01" value="{{ old('price') }}">
-            @error('price')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror        
+            <input type="number" class="form-control" name="price" id="price" step="0.01" value="{{ old('price') }}">
+                   
         </div>
 
         <!-- tags -->
         <div class="mb-3">
             <label for="tags" class="form-label">Tags</label>
 
-            <select name="tags[]" id="tags" class="form-select @error('tags') is-invalid @enderror" multiple>
+            <select name="tags[]" id="tags" class="form-select" multiple>
                 @foreach($tags as $tag)
                     <option value="{{ $tag->id }}" {{ collect(old('tags'))->contains($tag->id) ? 'selected' : '' }}>
                         {{ $tag->tag }}
                     </option>
                 @endforeach
             </select>
-            @error('tags')
-                <div class="invalid-feedback d-block">{{ $message }}</div>
-            @enderror
          </div>
 
         <button type="submit" class="btn btn-primary">Subir</button>
@@ -82,7 +71,43 @@ Ejemplo:
 </div>
 
 -------------------------------------------------------------------------------------
-USAR FORM REQUEST
-php artisan make:request StorePhotoRequest
+USAR FORM REQUEST--> Se usa para reunir las validaciones en una clase y asi que el codigo del controlador quede más limpio
+
+php artisan make:request PhotoRequest
+
+<?php
+public function authorize() //devuelve booleano indicando si se qrequiere autorización para usar esta request
+{
+    return true; 
+}
+
+public function rules() //se indican las reglas de validación
+{
+    return [
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'price' => 'required|numeric|min:0',
+        ];
+}
+
+public function messages() {
+    return [
+        'title.required' => 'The title is required.',
+        'title.string' => 'The title must be a string.',
+        'title.max' => 'The title must not be more than 255 characters.',        
+        'description.required' => 'The description is required.',
+        'price.required' => 'The price is required.',
+    ];
+}
+?>
+
+En el controlador se borra la funcion validate porque ya validamos aquí
+
+En la vista se modifica para enlazar los mensajes de error que hemos generado:
+
+    <input type="text" class="form-control" name="title" id="title" value="{{ old('title') }}" required>
+    @error('title')
+        <div class="text-danger">{{ $message }}</div>
+    @enderror
 
 
