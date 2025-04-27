@@ -29,6 +29,11 @@ public function index()//listado de los elementos de ese modelo
     return view('photos.index', compact('photos'));
 }
 
+public function index()
+    {
+        $tasks = $this->tasks;
+        return view('tasks.index', compact('tasks'));
+    }
 
 public function create()// muestra el formulario para dar de alta nuevos elementos del modelo 
 {

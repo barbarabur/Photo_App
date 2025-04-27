@@ -1,4 +1,3 @@
-<?php
 /* VISTAS
 
 para crear las vistas: 
@@ -13,6 +12,15 @@ LAs vistas se almacenan en resources/views/
 @include se usa para incluir una subvista, x ej un navbar, footer... @include('partials.navbar')
 Esto es como un “copiar y pegar” dinámico de esa vista dentro de otra.
 
+
+PARA BORRAR LA CACHÉ DE LAS VISTAS: 
+php artisan route:clear
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+
+PARA COMPROBAR LA LISTA DE VISTAS: 
+php artisan route:list
 
 
 
@@ -31,9 +39,26 @@ Resultado: se rellena el @yield('content') de la plantilla base con lo que ponga
 
 */
 
-Route::get('/photos', [PhotoController::class, 'index']);
-Esto significa: cuando el usuario vaya a /photos, ejecuta el método index() del PhotoController.
+Route::get('/photos', [PhotoController::class, 'index'])
+// Esto significa: cuando el usuario vaya a /photos, ejecuta el método index() del PhotoController.
 
+- GET----
+Solicita información al servidor.
+No cambia el estado de la aplicación (solo lee).
+
+Usos típicos:
+Mostrar una página.
+Obtener datos de un recurso.
+Mostrar un formulario vacío.
+
+- POST -----
+Envía datos al servidor.
+Cambia el estado de la aplicación (crear, procesar, almacenar).
+
+Usos típicos:
+Guardar un nuevo recurso.
+Procesar formularios.
+Autenticación o registro.
 
 
 

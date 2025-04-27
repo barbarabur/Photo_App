@@ -1,35 +1,44 @@
-hacemos la carpeta mkdir app/Traits y creamos dentro el archivo touch app/Traits/LogsUserActivity.php
 
+
+Un trait es una forma de compartir funcionalidades entre clases sin necesidad de herenc
+ESe guarda como un archivo de clase normal en app/Traits
 
 <?php
 
-namespace App\Traits;
+namespace App\Traits; 
 
-trait HasTitleCase
+
+use Illuminate\Support\Facades\Auth;
+
+trait AuthUser
 {
-    public function titleCase($string)
+    /**
+     * Obtiene el usuario autenticado.
+     *
+     * @return \App\Models\User
+     */
+
+    public function getAuthUser()
     {
-        return ucwords(strtolower($string));
+        return Auth::user();
+    }
+}
+
+?>
+
+Despues se usa el trait en un controlador sustituyendo las lineas de código.
+<?php
+
+namespace App\Models;
+
+  // Incluimos el trait
+use App\Traits\AuthUser;
+
+class User
+{
+    public function loquesea(){
+        $user = $this->getAuthUser();
     }
 }
 ?>
 
-
-Despues se usa el trait en un controlador
-<?php
-
-use App\Traits\HasTitleCase;
-
-// Crear una clase anónima con el trait
-$instance = new class {
-    use HasTitleCase;
-};
-
-echo $instance->titleCase('hola mundo desde laravel'); // Hola Mundo Desde Laravel
-?>
-
-new class {} crea una clase anónima (sin nombre).
-
-Dentro de ella usamos el trait HasTitleCase.
-
-Luego se puede usar el método titleCase() como si fuera parte de una clase normal.

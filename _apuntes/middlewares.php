@@ -23,7 +23,7 @@ middleware Aliases- Se le de da un alias unico para llamarlo
             $this->middleware('count.views')->only('show');
         }
 
- //opcion 2 en routes web:
+ //opcion 2 en routes/web:
 
 // Ruta individual para 'show' con middleware
 Route::get('/photos/{photo}', [PhotoController::class, 'show'])
@@ -31,3 +31,27 @@ Route::get('/photos/{photo}', [PhotoController::class, 'show'])
 
 // Y luego las demás rutas (sin duplicar 'show')
 Route::resource('photos', PhotoController::class)->except(['show']);
+
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class NombreDelMiddleware
+{
+    /**
+     * Manejar una solicitud entrante.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        // Aquí va tu lógica personalizada
+
+        return $next($request);
+    }
+}
