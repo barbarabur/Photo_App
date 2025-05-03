@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\LogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,7 @@ Route::middleware('auth')->group(function () {
     
 });
 Route::resource('photos', PhotoController::class);
+Route::get('/logs', [LogController::class, 'index']);
 
 // Incluyendo las rutas de autenticación
 require __DIR__.'/auth.php';

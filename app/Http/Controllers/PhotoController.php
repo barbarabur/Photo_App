@@ -11,6 +11,8 @@ use App\Models\Order;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\PhotoRequest;
+use Illuminate\Support\Facades\Log;
+
 class PhotoController extends Controller
 {
     /**
@@ -18,6 +20,8 @@ class PhotoController extends Controller
      */
     public function index()
     {
+        Log::info('Navegación: Se accedió al listado de fotos.');
+
         $user = User::find(auth()->id());
 
     if ($user && $user->hasRole('Photographer')) {
@@ -35,6 +39,8 @@ class PhotoController extends Controller
      */
     public function create()
     {
+        Log::info('Navegación: Se accedió al formulario de creación de foto.');
+
         $tags = Tag::all(); // Obtener todos los tags
         return view('photos.create', compact('tags')); // Pasar los tags a la vista
      }
@@ -71,7 +77,8 @@ class PhotoController extends Controller
         if ($request->has('tags')) {
             $photo->tags()->sync($request->input('tags'));
         }
-       
+        Log::info('Creación: Foto creadoa correctamente.', ['photo_id' => $photo->id]);
+
         return redirect()->route('photos.mainPhoto')->with('success', 'Foto subida correctamente.');
      }
 
@@ -197,8 +204,10 @@ class PhotoController extends Controller
             return $order->photos;
             });
         
+        $total = $completedPhotos->sum('price');
+
         // Pasar las fotos completadas a la vista
-        return view('photos.sales', compact('completedPhotos'));
+        return view('photos.sales', compact('completedPhotos', 'total'));
 
     }
 }

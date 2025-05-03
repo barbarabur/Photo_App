@@ -11,6 +11,7 @@ use Illuminate\View\View;
 use App\Models\User;
 use App\Models\Profile_pic;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 
 
@@ -21,6 +22,8 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        Log::info('Navegación: Se accedió al formulario de edición de usuario.', ['user_id' => $request]);
+
         $user = $request->user();
 
         // Obtener la foto de perfil del usuario desde la relación Profile_pic

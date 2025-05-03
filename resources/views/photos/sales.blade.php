@@ -3,10 +3,13 @@
 @section('content')
 <div class="container mt-4">
     <h3> SOLD PHOTOS</h3>
-
+    <p><strong>Total earnings: {{ $total }}€</strong></p>
+    
+    <div class="card mt-4">
     @if ($completedPhotos->isEmpty())
         <p>No completed order photos found.</p>
     @else
+
         <div class="row">
             @foreach ($completedPhotos as $photo)
                 <div class="col-md-4 mb-3">
@@ -23,6 +26,7 @@
                     </div>
                 </div>
             @endforeach
+        </div>
         </div>
     @endif
 </div>
