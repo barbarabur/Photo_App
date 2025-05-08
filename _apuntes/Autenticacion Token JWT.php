@@ -1,3 +1,6 @@
+
+<?
+
 -- Instalamos el paquete, publicamos la configuración y generamos la clave para los tokens:
 
 composer require tymon/jwt-auth

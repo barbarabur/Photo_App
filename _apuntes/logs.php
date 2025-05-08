@@ -13,7 +13,7 @@ config/logging.php
         'level' => 'debug',
     ],
 
-    // Otras configuraciones de log como daily, slack, etc.
+    
 ],
 ?>
 

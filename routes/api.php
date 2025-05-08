@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController as ApiUserController;
 use App\Http\Controllers\Api\PhotoController as ApiPhotoController;
 use App\Http\Controllers\Api\OrderController as ApiOrderController;
+use App\Http\Controllers\API\AuthController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -32,5 +34,4 @@ Route::prefix('auth')->group(function () {
     Route::post('refresh', [\App\Http\Controllers\API\AuthController::class, 'refresh'])->middleware('auth:api');
     Route::get('me', [\App\Http\Controllers\API\AuthController::class, 'me'])->middleware('auth:api');
 });
-
 

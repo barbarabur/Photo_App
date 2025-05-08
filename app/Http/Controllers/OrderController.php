@@ -120,20 +120,20 @@ class OrderController extends Controller
     public function photosInOrder ()
     {
         $user = Auth::user();
-
         $order = Order::where('user_id', $user->id)
         ->where('status', 'pending')
         ->with('photos')
         ->first();
 
-        if ($order) {
-            $photos = $order->photos;
-            $total = $order->total_price;
-        } else {
-            $photos = collect(); // colección vacía
-            $total = 0;
+        if (!$order) {
+            return redirect()->route('orders.index')->with('error', 'No hay órdenes pendientes');
         }
-        return view('clients.chart', compact('photos', 'total'));
+
+        $photos = $order->photos;
+        $total = $photos->sum('price');
+        $orderId = $order->id;
+    
+        return view('clients.chart', compact('photos', 'total', 'orderId'));
     }
 
     

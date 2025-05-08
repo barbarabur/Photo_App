@@ -7,6 +7,7 @@ use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,14 @@ Route::middleware('auth')->group(function () {
 });
 Route::resource('photos', PhotoController::class);
 Route::get('/logs', [LogController::class, 'index']);
+
+//ruta para el pago con stripe
+
+Route::middleware('auth')->group(function () {
+    Route::get('/payment/{order}', [PaymentController::class, 'showPaymentForm'])->name('payments.form');
+    Route::post('/payment/{order}', [PaymentController::class, 'processPayment'])->name('payments.process');
+});
+
 
 // Incluyendo las rutas de autenticación
 require __DIR__.'/auth.php';

@@ -27,6 +27,12 @@
         <div class="card-body">
             <h5 class="card-title">Total order price</h5>
             <p class="card-text text-muted">{{$total}}</p>
+            <form action="{{ route('payments.process', $orderId) }}" method="POST">
+                @csrf
+                <input type="hidden" name="order_id" value="{{ $orderId }}"> {{-- Asegúrate de pasar este dato desde el controlador --}}
+                <button type="submit" class="btn btn-primary mt-3">Pay with Stripe</button>
+            </form>
+
         </div>
     @endif
 </div>
